@@ -111,6 +111,19 @@ Rails.application.routes.draw do
   route "admin/reports", name: "reports" do
     all
   end
+
+  # Singular routes also are detected and generated accordingly.
+  # This will generate the following routes:
+  #
+  # GET  /profile         profile_path
+  # POST /profile/new
+  # GET  /profile/edit    edit_profile_path
+  # POST /profile/edit
+  # GET  /profile/remove  remove_profile_path
+  # POST /profile/remove
+  route "profile" do
+    all
+  end
 end
 ```
 

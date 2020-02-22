@@ -18,13 +18,17 @@ module HumanRoutes
       @singular_controller_name ||= controller_name.singularize
     end
 
+    def resource?
+      controller_name == singular_controller_name
+    end
+
     def routes
       @routes ||= []
     end
 
     def create(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller_name}/new",
+        segment: :new,
         default_name: "new_#{singular_controller_name}",
         args: args
       )
@@ -52,7 +56,7 @@ module HumanRoutes
 
     def update(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller_name}/:id/edit",
+        segment: :edit,
         default_name: "edit_#{singular_controller_name}",
         args: args
       )
@@ -80,7 +84,7 @@ module HumanRoutes
 
     def remove(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller_name}/:id/remove",
+        segment: :remove,
         default_name: "remove_#{singular_controller_name}",
         args: args
       )
@@ -108,7 +112,7 @@ module HumanRoutes
 
     def list(*args)
       path, name, options = extract_route_args(
-        default_path: controller_name,
+        segment: :list,
         default_name: controller_name,
         args: args
       )
@@ -126,7 +130,7 @@ module HumanRoutes
 
     def show(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller_name}/:id",
+        segment: :show,
         default_name: singular_controller_name,
         args: args
       )
@@ -146,15 +150,15 @@ module HumanRoutes
       create
       update
       remove
-      list
       show
+      list unless controller_name == controller_name.singularize
     end
 
-    private def extract_route_args(default_path:, default_name:, args:)
+    private def extract_route_args(segment:, default_name:, args:)
       route_options = args.extract_options!
       route_options = default_options.merge(options).merge(route_options)
-      path = args.first || default_path
-      name = route_options.delete(:as) || default_name
+      path = args.first || path_for(segment, route_options)
+      name = route_options.delete(:as) { default_name.underscore.tr("/", "_") }
 
       [path, name, route_options]
     end
@@ -163,6 +167,37 @@ module HumanRoutes
       {
         format: false
       }
+    end
+
+    private def path_for(segment, options)
+      param = options.fetch(:param, :id)
+
+      segments = if resource?
+                   resource_segments(segment, param)
+                 else
+                   resources_segments(segment, param)
+                 end
+
+      segments.compact.join("/")
+    end
+
+    private def resource_segments(segment, _param)
+      segments = [controller_name]
+      segments << segment unless segment == :show
+      segments
+    end
+
+    private def resources_segments(segment, param)
+      case segment
+      when :list
+        [controller_name]
+      when :new
+        [controller_name, segment]
+      when :show
+        [controller_name, ":#{param}"]
+      else
+        [controller_name, ":#{param}", segment]
+      end
     end
   end
 end

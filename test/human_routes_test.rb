@@ -200,4 +200,17 @@ class HumanRoutesTest < Minitest::Test
     assert_equal "/reports/1234", report_path(1234)
     assert_equal "/reports", reports_path
   end
+
+  test "generates routes with singular name" do
+    with_routes do
+      route "profile" do
+        all
+      end
+    end
+
+    assert_equal "/profile/new", new_profile_path
+    assert_equal "/profile/edit", edit_profile_path
+    assert_equal "/profile/remove", remove_profile_path
+    assert_equal "/profile", profile_path
+  end
 end
