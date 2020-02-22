@@ -104,6 +104,13 @@ Rails.application.routes.draw do
   route :pages, module: "customer" do
     all
   end
+
+  # Additionally, you can use `:name` to give a different name to
+  # namespaced controllers. This way routes can be generated using a shallow
+  # path instead of the usual `admin/reports`.
+  route "admin/reports", name: "reports" do
+    all
+  end
 end
 ```
 

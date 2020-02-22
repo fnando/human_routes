@@ -10,8 +10,12 @@ module HumanRoutes
       @options = options
     end
 
+    def controller_name
+      @controller_name ||= options.delete(:name) { controller.to_s }
+    end
+
     def singular_controller_name
-      @singular_controller_name ||= controller.to_s.singularize
+      @singular_controller_name ||= controller_name.singularize
     end
 
     def routes
@@ -20,7 +24,7 @@ module HumanRoutes
 
     def create(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller}/new",
+        default_path: "#{controller_name}/new",
         default_name: "new_#{singular_controller_name}",
         args: args
       )
@@ -48,7 +52,7 @@ module HumanRoutes
 
     def update(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller}/:id/edit",
+        default_path: "#{controller_name}/:id/edit",
         default_name: "edit_#{singular_controller_name}",
         args: args
       )
@@ -76,7 +80,7 @@ module HumanRoutes
 
     def remove(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller}/:id/remove",
+        default_path: "#{controller_name}/:id/remove",
         default_name: "remove_#{singular_controller_name}",
         args: args
       )
@@ -104,8 +108,8 @@ module HumanRoutes
 
     def list(*args)
       path, name, options = extract_route_args(
-        default_path: controller,
-        default_name: controller,
+        default_path: controller_name,
+        default_name: controller_name,
         args: args
       )
 
@@ -122,7 +126,7 @@ module HumanRoutes
 
     def show(*args)
       path, name, options = extract_route_args(
-        default_path: "#{controller}/:id",
+        default_path: "#{controller_name}/:id",
         default_name: singular_controller_name,
         args: args
       )

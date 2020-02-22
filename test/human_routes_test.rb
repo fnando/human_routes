@@ -186,4 +186,18 @@ class HumanRoutesTest < Minitest::Test
     assert_equal "/things.json", last_request.path
     assert_equal "index", last_response.body
   end
+
+  test "generates routes using base name for namespaced controllers" do
+    with_routes do
+      route "admin/reports", name: "reports" do
+        all
+      end
+    end
+
+    assert_equal "/reports/new", new_report_path
+    assert_equal "/reports/1234/edit", edit_report_path(1234)
+    assert_equal "/reports/1234/remove", remove_report_path(1234)
+    assert_equal "/reports/1234", report_path(1234)
+    assert_equal "/reports", reports_path
+  end
 end
