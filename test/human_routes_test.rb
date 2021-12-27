@@ -213,4 +213,22 @@ class HumanRoutesTest < Minitest::Test
     assert_equal "/profile/remove", remove_profile_path
     assert_equal "/profile", profile_path
   end
+
+  test "generates bare routes" do
+    with_routes do
+      route "login" do
+        create bare: true
+      end
+    end
+
+    get new_login_path
+
+    assert_equal "/login", last_request.path
+    assert_equal "new", last_response.body
+
+    post new_login_path
+
+    assert_equal "/login", last_request.path
+    assert_equal "create", last_response.body
+  end
 end

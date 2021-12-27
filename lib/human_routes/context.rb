@@ -2,8 +2,7 @@
 
 module HumanRoutes
   class Context
-    attr_reader :controller
-    attr_reader :options
+    attr_reader :controller, :options
 
     def initialize(controller, options = {})
       @controller = controller
@@ -132,7 +131,8 @@ module HumanRoutes
       path, name, options = extract_route_args(
         segment: :show,
         default_name: singular_controller_name,
-        args: args
+        args: args,
+        bare: true
       )
 
       routes << [
@@ -154,9 +154,13 @@ module HumanRoutes
       list unless controller_name == controller_name.singularize
     end
 
-    private def extract_route_args(segment:, default_name:, args:)
+    private def extract_route_args(segment:, default_name:, args:, bare: false)
       route_options = args.extract_options!
-      route_options = default_options.merge(options).merge(route_options)
+      route_options = default_options
+                      .merge(options)
+                      .merge(bare: bare)
+                      .merge(route_options)
+
       path = args.first || path_for(segment, route_options)
       name = route_options.delete(:as) { default_name.underscore.tr("/", "_") }
 
@@ -173,21 +177,21 @@ module HumanRoutes
       param = options.fetch(:param, :id)
 
       segments = if resource?
-                   resource_segments(segment, param)
+                   resource_segments(segment, param, options)
                  else
-                   resources_segments(segment, param)
+                   resources_segments(segment, param, options)
                  end
 
       segments.compact.join("/")
     end
 
-    private def resource_segments(segment, _param)
+    private def resource_segments(segment, _param, options)
       segments = [controller_name]
-      segments << segment unless segment == :show
+      segments << segment unless options[:bare]
       segments
     end
 
-    private def resources_segments(segment, param)
+    private def resources_segments(segment, param, _options)
       case segment
       when :list
         [controller_name]

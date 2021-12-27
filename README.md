@@ -16,11 +16,15 @@ gem "human_routes"
 
 And then execute:
 
-    $ bundle install
+```bash
+bundle install
+```
 
 Or install it yourself as:
 
-    $ gem install human_routes
+```bash
+gem install human_routes
+```
 
 ## Usage
 
@@ -36,7 +40,7 @@ end
 
 This will generate a few routes different routes, as you can see below:
 
-```
+```console
 $ rails routes
    Prefix     Verb   URI Pattern   Controller#Action
    new_signup GET    /signup/new   signup#new
@@ -64,7 +68,7 @@ The above could added in one line with `route(:blogs) { all }`.
 
 This will generate the following routes:
 
-```
+```console
 $ rails routes
      Prefix Verb   URI Pattern        Controller#Action
    new_blog GET    /blogs/new         blogs#new
@@ -127,6 +131,21 @@ Rails.application.routes.draw do
 end
 ```
 
+Sometimes you want to create routes without the action (e.g. `new` or `edit`);
+in this case, you can use `bare: true`.
+
+```ruby
+Rails.application.routes.draw do
+  # This will generate the following routes:
+  #
+  # GET  /login  new_login_path
+  # POST /login
+  route :login do
+    create bare: true
+  end
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run
@@ -142,7 +161,7 @@ git commits and tags, and push the `.gem` file to
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
-https://github.com/fnando/human_routes. This project is intended to be a safe,
+<https://github.com/fnando/human_routes>. This project is intended to be a safe,
 welcoming space for collaboration, and contributors are expected to adhere to
 the
 [code of conduct](https://github.com/fnando/human_routes/blob/master/CODE_OF_CONDUCT.md).
