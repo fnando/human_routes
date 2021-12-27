@@ -146,6 +146,19 @@ Rails.application.routes.draw do
 end
 ```
 
+You may want to add another paths not covered by the default helpers. In that
+case, you can use `get` and `post`.
+
+```ruby
+Rails.application.routes.draw do
+  route :login do
+    create as: "login", bare: true
+    get :verify_email #=> /login/verify-email
+    get :check_inbox  #=> /login/check-inbox
+  end
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run

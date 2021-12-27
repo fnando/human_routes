@@ -3,12 +3,8 @@
 module HumanRoutes
   module Extensions
     def route(controller, options = {}, &block)
-      context = Context.new(controller, options)
+      context = Context.new(self, controller, options)
       context.instance_eval(&block)
-
-      context.routes.each do |route|
-        match(*route)
-      end
     end
   end
 end

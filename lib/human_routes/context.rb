@@ -2,11 +2,13 @@
 
 module HumanRoutes
   class Context
-    attr_reader :controller, :options
+    attr_reader :controller, :options, :router, :named_routes
 
-    def initialize(controller, options = {})
+    def initialize(router, controller, options = {})
+      @router = router
       @controller = controller
       @options = options
+      @named_routes = {}
     end
 
     def controller_name
@@ -32,25 +34,19 @@ module HumanRoutes
         args: args
       )
 
-      routes << [
-        path,
-        {
-          via: :get,
-          controller: controller,
-          action: :new,
-          as: name
-        }.merge(options)
-      ]
+      match path, {
+        via: :get,
+        controller: controller,
+        action: :new,
+        as: name
+      }.merge(options)
 
-      routes << [
-        path,
-        {
-          via: :post,
-          controller: controller,
-          action: :create,
-          as: ""
-        }.merge(options)
-      ]
+      match path, {
+        via: :post,
+        controller: controller,
+        action: :create,
+        as: ""
+      }.merge(options)
     end
 
     def update(*args)
@@ -60,25 +56,19 @@ module HumanRoutes
         args: args
       )
 
-      routes << [
-        path,
-        {
-          via: :get,
-          controller: controller,
-          action: :edit,
-          as: name
-        }.merge(options)
-      ]
+      match path, {
+        via: :get,
+        controller: controller,
+        action: :edit,
+        as: name
+      }.merge(options)
 
-      routes << [
-        path,
-        {
-          via: :post,
-          controller: controller,
-          action: :update,
-          as: ""
-        }.merge(options)
-      ]
+      match path, {
+        via: :post,
+        controller: controller,
+        action: :update,
+        as: ""
+      }.merge(options)
     end
 
     def remove(*args)
@@ -88,25 +78,19 @@ module HumanRoutes
         args: args
       )
 
-      routes << [
-        path,
-        {
-          via: :get,
-          controller: controller,
-          action: :remove,
-          as: name
-        }.merge(options)
-      ]
+      match path, {
+        via: :get,
+        controller: controller,
+        action: :remove,
+        as: name
+      }.merge(options)
 
-      routes << [
-        path,
-        {
-          via: :post,
-          controller: controller,
-          action: :destroy,
-          as: ""
-        }.merge(options)
-      ]
+      match path, {
+        via: :post,
+        controller: controller,
+        action: :destroy,
+        as: ""
+      }.merge(options)
     end
 
     def list(*args)
@@ -116,15 +100,12 @@ module HumanRoutes
         args: args
       )
 
-      routes << [
-        path,
-        {
-          via: :get,
-          controller: controller,
-          action: :index,
-          as: name
-        }.merge(options)
-      ]
+      match path, {
+        via: :get,
+        controller: controller,
+        action: :index,
+        as: name
+      }.merge(options)
     end
 
     def show(*args)
@@ -135,15 +116,12 @@ module HumanRoutes
         bare: true
       )
 
-      routes << [
-        path,
-        {
-          via: :get,
-          controller: controller,
-          action: :show,
-          as: name
-        }.merge(options)
-      ]
+      match path, {
+        via: :get,
+        controller: controller,
+        action: :show,
+        as: name
+      }.merge(options)
     end
 
     def all
@@ -154,14 +132,55 @@ module HumanRoutes
       list unless controller_name == controller_name.singularize
     end
 
-    private def extract_route_args(segment:, default_name:, args:, bare: false)
+    def get(action, *args)
+      path, name, options = extract_route_args(
+        segment: action,
+        default_name: action.to_s,
+        args: args
+      )
+
+      match path, {
+        via: :get,
+        controller: controller,
+        action: action,
+        as: name
+      }.merge(options)
+    end
+
+    def post(action, *args)
+      path, name, options = extract_route_args(
+        segment: action,
+        default_name: action.to_s,
+        args: args
+      )
+
+      match path, {
+        via: :post,
+        controller: controller,
+        action: action,
+        as: named_routes[path] == name ? "" : name
+      }.merge(options)
+    end
+
+    private def match(path, options)
+      named_routes[path] = options[:as] unless options[:as].empty?
+      router.match(path, options)
+    end
+
+    private def extract_route_args(
+      segment:,
+      default_name:,
+      args:,
+      bare: false
+    )
       route_options = args.extract_options!
       route_options = default_options
-                      .merge(options)
                       .merge(bare: bare)
+                      .merge(options)
                       .merge(route_options)
 
       path = args.first || path_for(segment, route_options)
+      path = path.to_s.dasherize
       name = route_options.delete(:as) { default_name.underscore.tr("/", "_") }
 
       [path, name, route_options]

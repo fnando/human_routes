@@ -66,6 +66,14 @@ class LoginController < ActionController::Base
   def create
     render plain: __method__.to_s
   end
+
+  def verify_email
+    render plain: __method__.to_s
+  end
+
+  def check_inbox
+    render plain: __method__.to_s
+  end
 end
 
 module Admin

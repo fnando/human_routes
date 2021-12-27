@@ -10,6 +10,16 @@ class HumanRoutesTest < Minitest::Test
     App
   end
 
+  test "dasherizes route" do
+    with_routes do
+      route :crazy_things do
+        create
+      end
+    end
+
+    assert_equal "/crazy-things/new", new_crazy_thing_path
+  end
+
   test "defines :create routes for things" do
     with_routes do
       route :things do
@@ -230,5 +240,26 @@ class HumanRoutesTest < Minitest::Test
 
     assert_equal "/login", last_request.path
     assert_equal "create", last_response.body
+  end
+
+  test "generates extra paths" do
+    with_routes do
+      route "login" do
+        create bare: true
+        get  :verify_email
+        get  :check_inbox
+        post :check_inbox
+      end
+    end
+
+    get verify_email_path
+
+    assert_equal "/login/verify-email", last_request.path
+    assert_equal "verify_email", last_response.body
+
+    get check_inbox_path
+
+    assert_equal "/login/check-inbox", last_request.path
+    assert_equal "check_inbox", last_response.body
   end
 end
