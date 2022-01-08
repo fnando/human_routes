@@ -183,6 +183,8 @@ module HumanRoutes
       path = path.to_s.dasherize
       name = route_options.delete(:as) { default_name.underscore.tr("/", "_") }
 
+      route_options.delete(:bare)
+
       [path, name, route_options]
     end
 
