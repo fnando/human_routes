@@ -180,7 +180,16 @@ module HumanRoutes
                       .merge(route_options)
 
       path = args.first || path_for(segment, route_options)
-      path = path.to_s.dasherize
+
+      path = [
+        route_options[:parent].to_s.split("/"),
+        path.to_s.split("/")
+      ].flatten.compact
+
+      path = path.map do |s|
+        s.start_with?(":") ? s : s.dasherize
+      end.join("/")
+
       name = route_options.delete(:as) { default_name.underscore.tr("/", "_") }
 
       route_options.delete(:bare)

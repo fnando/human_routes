@@ -58,6 +58,40 @@ class SignupController < ActionController::Base
   end
 end
 
+class CommentsController < ActionController::Base
+  def show
+    render plain: "#{__method__}:#{params[:post_id]}:#{params[:id]}"
+  end
+
+  def edit
+    render plain: "#{__method__}:#{params[:post_id]}:#{params[:id]}"
+  end
+
+  def update
+    render plain: "#{__method__}:#{params[:post_id]}:#{params[:id]}"
+  end
+
+  def remove
+    render plain: "#{__method__}:#{params[:post_id]}:#{params[:id]}"
+  end
+
+  def destroy
+    render plain: "#{__method__}:#{params[:post_id]}:#{params[:id]}"
+  end
+
+  def new
+    render plain: "#{__method__}:#{params[:post_id]}"
+  end
+
+  def create
+    render plain: "#{__method__}:#{params[:post_id]}"
+  end
+
+  def index
+    render plain: "#{__method__}:#{params[:post_id]}"
+  end
+end
+
 class LoginController < ActionController::Base
   def new
     render plain: __method__.to_s

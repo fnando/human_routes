@@ -159,6 +159,24 @@ Rails.application.routes.draw do
 end
 ```
 
+For nested paths, you can use `:parent`:
+
+```ruby
+Rails.application.routes.draw do
+  route :posts do
+    all
+  end
+
+  route :comments, parent: "posts/:post_id" do
+    remove #=> /posts/:post_id/comments/:id/remove
+    list   #=> /posts/:post_id/comments
+
+    # or
+    all
+  end
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run

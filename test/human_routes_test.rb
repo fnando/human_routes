@@ -262,4 +262,53 @@ class HumanRoutesTest < Minitest::Test
     assert_equal "/login/check-inbox", last_request.path
     assert_equal "check_inbox", last_response.body
   end
+
+  test "generates nested routes" do
+    with_routes do
+      route "posts" do
+        all
+      end
+
+      route "comments", parent: "posts/:post_id" do
+        all
+      end
+    end
+
+    assert_equal "/posts/1/comments", comments_path(1)
+    assert_equal "/posts/1/comments/2", comment_path(1, 2)
+    assert_equal "/posts/1/comments/2/edit", edit_comment_path(1, 2)
+    assert_equal "/posts/1/comments/2/remove", remove_comment_path(1, 2)
+
+    get comment_path("some-post", 1234)
+    assert_equal "/posts/some-post/comments/1234", last_request.path
+    assert_equal "show:some-post:1234", last_response.body
+
+    get edit_comment_path("some-post", 1234)
+    assert_equal "/posts/some-post/comments/1234/edit", last_request.path
+    assert_equal "edit:some-post:1234", last_response.body
+
+    post edit_comment_path("some-post", 1234)
+    assert_equal "/posts/some-post/comments/1234/edit", last_request.path
+    assert_equal "update:some-post:1234", last_response.body
+
+    get remove_comment_path("some-post", 1234)
+    assert_equal "/posts/some-post/comments/1234/remove", last_request.path
+    assert_equal "remove:some-post:1234", last_response.body
+
+    post remove_comment_path("some-post", 1234)
+    assert_equal "/posts/some-post/comments/1234/remove", last_request.path
+    assert_equal "destroy:some-post:1234", last_response.body
+
+    get new_comment_path("some-post")
+    assert_equal "/posts/some-post/comments/new", last_request.path
+    assert_equal "new:some-post", last_response.body
+
+    post new_comment_path("some-post")
+    assert_equal "/posts/some-post/comments/new", last_request.path
+    assert_equal "create:some-post", last_response.body
+
+    get comments_path("some-post")
+    assert_equal "/posts/some-post/comments", last_request.path
+    assert_equal "index:some-post", last_response.body
+  end
 end
