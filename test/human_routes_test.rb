@@ -216,12 +216,28 @@ class HumanRoutesTest < Minitest::Test
       route "profile" do
         all
       end
+
+      route "settings" do
+        list bare: true
+      end
+
+      route "blog_settings",
+            prefix: "blogs/:blog_id",
+            path_name: "settings",
+            resource: true,
+            singularize: false do
+        show
+        update
+      end
     end
 
     assert_equal "/profile/new", new_profile_path
     assert_equal "/profile/edit", edit_profile_path
     assert_equal "/profile/remove", remove_profile_path
     assert_equal "/profile", profile_path
+    assert_equal "/settings", settings_path
+    assert_equal "/blogs/1234/settings", blog_settings_path(1234)
+    assert_equal "/blogs/1234/settings/edit", edit_blog_settings_path(1234)
   end
 
   test "generates bare routes" do
@@ -269,7 +285,7 @@ class HumanRoutesTest < Minitest::Test
         all
       end
 
-      route "comments", parent: "posts/:post_id" do
+      route "comments", prefix: "posts/:post_id" do
         all
       end
     end

@@ -16,11 +16,19 @@ module HumanRoutes
     end
 
     def singular_controller_name
-      @singular_controller_name ||= controller_name.singularize
+      @singular_controller_name ||= if options[:resource]
+                                      controller_name
+                                    else
+                                      controller_name.singularize
+                                    end
     end
 
     def resource?
-      controller_name == singular_controller_name
+      options[:resource] || controller_name == singular_controller_name
+    end
+
+    def path_name
+      options[:path_name] || controller_name
     end
 
     def routes
@@ -129,7 +137,7 @@ module HumanRoutes
       update
       remove
       show
-      list unless controller_name == controller_name.singularize
+      list unless resource?
     end
 
     def get(action, *args)
@@ -182,7 +190,7 @@ module HumanRoutes
       path = args.first || path_for(segment, route_options)
 
       path = [
-        route_options[:parent].to_s.split("/"),
+        route_options[:prefix].to_s.split("/"),
         path.to_s.split("/")
       ].flatten.compact
 
@@ -192,7 +200,12 @@ module HumanRoutes
 
       name = route_options.delete(:as) { default_name.underscore.tr("/", "_") }
 
-      route_options.delete(:bare)
+      %i[
+        bare
+        prefix
+        path_name
+        resource
+      ].each {|key| route_options.delete(key) }
 
       [path, name, route_options]
     end
@@ -216,7 +229,7 @@ module HumanRoutes
     end
 
     private def resource_segments(segment, _param, options)
-      segments = [controller_name]
+      segments = [path_name]
       segments << segment unless options[:bare]
       segments
     end
@@ -224,13 +237,13 @@ module HumanRoutes
     private def resources_segments(segment, param, _options)
       case segment
       when :list
-        [controller_name]
+        [path_name]
       when :new
-        [controller_name, segment]
+        [path_name, segment]
       when :show
-        [controller_name, ":#{param}"]
+        [path_name, ":#{param}"]
       else
-        [controller_name, ":#{param}", segment]
+        [path_name, ":#{param}", segment]
       end
     end
   end

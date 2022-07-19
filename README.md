@@ -120,12 +120,28 @@ Rails.application.routes.draw do
   # This will generate the following routes:
   #
   # GET  /profile         profile_path
+  # GET  /profile/new     new_profile_path
   # POST /profile/new
   # GET  /profile/edit    edit_profile_path
   # POST /profile/edit
   # GET  /profile/remove  remove_profile_path
   # POST /profile/remove
   route "profile" do
+    all
+  end
+
+  # You can use `resource: true` when you want a plural route but need a
+  # singular resource.
+  #
+  # GET  /settings         settings_path
+  # GET  /settings/new     new_settings_path
+  # POST /settings/new
+  # GET  /settings/edit    edit_settings_path
+  # POST /settings/edit
+  # GET  /settings/remove  remove_settings_path
+  # POST /settings/remove
+  #
+  route "settings", resource: true do
     all
   end
 end
@@ -159,7 +175,7 @@ Rails.application.routes.draw do
 end
 ```
 
-For nested paths, you can use `:parent`:
+For nested paths, you can use `:prefix`:
 
 ```ruby
 Rails.application.routes.draw do
@@ -167,11 +183,26 @@ Rails.application.routes.draw do
     all
   end
 
-  route :comments, parent: "posts/:post_id" do
+  route :comments, prefix: "posts/:post_id" do
     remove #=> /posts/:post_id/comments/:id/remove
     list   #=> /posts/:post_id/comments
 
     # or
+    all
+  end
+end
+```
+
+If you need to change the url path, but point to a different controller, then
+use `:path_name`:
+
+```ruby
+Rails.application.routes.draw do
+  route :blogs do
+    all
+  end
+
+  route :blog_comments, path: "blogs/:blog_id", path_name: "comments" do
     all
   end
 end
