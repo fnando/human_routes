@@ -120,6 +120,6 @@ end
 
 App.initialize!
 
-def with_routes(&block)
-  Rails.application.routes.draw(&block)
+def with_routes(&)
+  Rails.application.routes.draw(&)
 end

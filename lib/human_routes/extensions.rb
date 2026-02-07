@@ -2,9 +2,9 @@
 
 module HumanRoutes
   module Extensions
-    def route(controller, options = {}, &block)
+    def route(controller, options = {}, &)
       context = Context.new(self, controller, options)
-      context.instance_eval(&block)
+      context.instance_eval(&)
     end
   end
 end
