@@ -172,7 +172,7 @@ module HumanRoutes
 
     private def match(path, options)
       named_routes[path] = options[:as] unless options[:as].empty?
-      router.match(path, options)
+      router.match(path, **options)
     end
 
     private def extract_route_args(
